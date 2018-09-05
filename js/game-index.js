@@ -1,64 +1,11 @@
-var GameApp = function() {};
+//========================================================================
+// LOAD GAME SCENE
+class loadGameScene extends Phaser.Scene {
+    constructor() {
+        super("LoadGameScene");
+    }
 
-GameApp.prototype.start = function() {
-    // Game scenes
-    var scenes = [];
-    var loadGameScene = new Phaser.Scene('loaderGame');
-    var startGameScene = new Phaser.Scene('StartGame');
-    var inGameScene = new Phaser.Scene('InGame');
-    scenes.push(loadGameScene);
-    scenes.push(startGameScene);
-    scenes.push(inGameScene);
-
-    // Game config
-    var config = {
-        type: Phaser.AUTO,
-        title: 'SpaceLord',
-        parent: 'game-wrapper',
-        width: 960,
-        height: 540,
-        physics: {
-            default: 'arcade',
-            system: 'impact',
-            arcade: {
-                gravity: {y: 9.8},
-                debug: false
-            },
-            setBounds: {
-                width: 800,
-                height: 600,
-            }
-        },
-        scene: scenes
-    };
-
-    // Game create
-    var game = new Phaser.Game(config);
-    window.focus();
-    game._gameOptions = {
-        map: {
-            gravity: 9.8
-        },
-        engine: {
-            limit: 500,
-            acceleration: 3,
-            power: 400
-        },
-        regulation: {
-            limit: 500,
-            acceleration: 5,
-            power: 0
-        }
-    };
-    game._player;
-    game._cursors;
-    game._mapLayer;
-
-    
-
-    //========================================================================
-    // LOAD GAME SCENE
-    loadGameScene.preload = function() {
+    preload() {
         this.load.image('bckgr-intro', 'media/game/images/intro.jpg');
         this.load.image('player-graphics', 'media/game/images/ufo.png');
         this.load.image('bckgr-step-1', 'media/game/images/bckgr-step-1.jpg');
@@ -67,12 +14,8 @@ GameApp.prototype.start = function() {
         this.load.spritesheet('tiles', 'media/game/images/tiles.png', {frameWidth: 70, frameHeight: 70});
         this.load.image('coin', 'media/game/images/coinGold.png');
     }
-
-    loadGameScene.init = function() {
-
-    }
-
-    loadGameScene.create = function() {
+    
+    create() {
         let progressBar = this.add.graphics();
         let progressBox = this.add.graphics();
         let width = this.cameras.main.width;
@@ -134,21 +77,19 @@ GameApp.prototype.start = function() {
         });
     }
 
-    loadGameScene.update = function() {
-        this.scene.start('StartGame');
+    update() {
+        this.scene.start('StartGameScene');
+    }
+}
+
+//========================================================================
+// START GAME SCENE
+class startGameScene extends Phaser.Scene {
+    constructor() {
+        super("StartGameScene");
     }
 
-    //========================================================================
-    // START GAME SCENE
-    startGameScene.preload = function() {
-
-    }
-
-    startGameScene.init = function() {
-        
-    }
-
-    startGameScene.create = function() {
+    create() {
         let gameObj = this;
 
         let introBck = this.add.sprite(0, 0, 'bckgr-intro');
@@ -165,22 +106,24 @@ GameApp.prototype.start = function() {
         }
     }
 
-    startGameScene.update = function() {
+    update() {
         let gameObj = this;
         this.input.on("pointerup", goToGame, this);
         let isStarted = false;
         function goToGame() {
-            gameObj.scene.start('InGame');
+            gameObj.scene.start('InGameScene');
         }
     }
+}
 
-    //========================================================================
-    // IN GAME SCENE
-    inGameScene.preload = function() {
-
+//========================================================================
+// IN GAME SCENE
+class inGameScene extends Phaser.Scene {
+    constructor() {
+        super("InGameScene");
     }
 
-    inGameScene.init = function() {
+    init() {
         this.engineLimit = this.sys.game._gameOptions.engine.limit;
         this.engineAcceleration = this.sys.game._gameOptions.engine.acceleration;
         this.enginePower = this.sys.game._gameOptions.engine.power;
@@ -191,7 +134,7 @@ GameApp.prototype.start = function() {
         this.mapGravity = this.sys.game._gameOptions.map.gravity;
     }
 
-    inGameScene.create = function() {
+    create() {
         let introBck = this.add.sprite(0, 0, 'bckgr-step-1');
         introBck.setOrigin(0, 0);
 
@@ -219,7 +162,7 @@ GameApp.prototype.start = function() {
         this.sys.game._cursors = this.input.keyboard.createCursorKeys();
     }
 
-    inGameScene.update = function() {
+    update() {
         let userPlayer = this.sys.game._player;
         let userCursors = this.sys.game._cursors;
         if (!this.engineOn) {
@@ -318,7 +261,63 @@ GameApp.prototype.start = function() {
             console.log("Engine throtle -> " + this.enginePower);
         }
     }
+}
+// END OF SCENES
+//========================================================================
 
+var GameApp = function() {};
+
+GameApp.prototype.start = function() {
+    // Game scenes
+    var scenes = [];
+    scenes.push(loadGameScene);
+    scenes.push(startGameScene);
+    scenes.push(inGameScene);
+
+    // Game config
+    var config = {
+        type: Phaser.AUTO,
+        title: 'SpaceLord',
+        parent: 'game-wrapper',
+        width: 960,
+        height: 540,
+        physics: {
+            default: 'arcade',
+            system: 'impact',
+            arcade: {
+                gravity: {y: 9.8},
+                debug: false
+            },
+            setBounds: {
+                width: 800,
+                height: 600,
+            }
+        },
+        scene: scenes
+    };
+
+    // Game create
+    var game = new Phaser.Game(config);
+
+    window.focus();
+    game._gameOptions = {
+        map: {
+            gravity: 9.8
+        },
+        engine: {
+            limit: 500,
+            acceleration: 3,
+            power: 400
+        },
+        regulation: {
+            limit: 500,
+            acceleration: 5,
+            power: 0
+        }
+    };
+    game._player;
+    game._cursors;
+    game._mapLayer;
 }
 
 window.onload = function() {
