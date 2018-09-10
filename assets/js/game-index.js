@@ -6,78 +6,77 @@ class loadGameScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('bckgr-intro', 'media/game/images/intro.jpg');
-        this.load.image('player-graphics', 'media/game/images/ufo.png');
-        this.load.image('bckgr-step-1', 'media/game/images/bckgr-step-1.jpg');
+        this.load.image('bckgr-intro', '../assets/media/game/images/intro.jpg');
+        this.load.image('player-graphics', '../assets/media/game/images/ufo.png');
+        this.load.image('bckgr-step-1', '../assets/media/game/images/bckgr-step-1.jpg');
+        this.load.spritesheet('play-btn', '../assets/media/game/images/button-start.png', {frameWidth: 201, frameHeight: 72});
 
-        this.load.tilemapTiledJSON('map', 'media/game/map.json');
-        this.load.spritesheet('tiles', 'media/game/images/tiles.png', {frameWidth: 70, frameHeight: 70});
-        this.load.image('coin', 'media/game/images/coinGold.png');
+        this.load.tilemapTiledJSON('map', '../assets/media/game/map/map.json');
+        this.load.spritesheet('tiles', '../assets/media/game/map/tiles.png', {frameWidth: 70, frameHeight: 70});
+        this.load.image('coin', '../assets/media/game/map/coinGold.png');
     }
     
     create() {
-        let progressBar = this.add.graphics();
-        let progressBox = this.add.graphics();
-        let width = this.cameras.main.width;
-        let height = this.cameras.main.height;
+        // let progressBar = this.add.graphics();
+        // let progressBox = this.add.graphics();
+        // let width = this.cameras.main.width;
+        // let height = this.cameras.main.height;
         
-        progressBox.fillStyle(0x222222, 0.8);
-        progressBox.fillRect((width - 320) / 2, 290, 320, 50);
+        // progressBox.fillStyle(0x222222, 0.8);
+        // progressBox.fillRect((width - 320) / 2, 290, 320, 50);
         
-        let loadingText = this.make.text({
-            x: width / 2,
-            y: height / 2 - 50,
-            text: 'Loading...',
-            style: {
-                font: '20px monospace',
-                fill: '#ffffff'
-            }
-        });
-        loadingText.setOrigin(0.5, 0.5);
+        // let loadingText = this.make.text({
+        //     x: width / 2,
+        //     y: height / 2 - 50,
+        //     text: 'Loading...',
+        //     style: {
+        //         font: '20px monospace',
+        //         fill: '#ffffff'
+        //     }
+        // });
+        // loadingText.setOrigin(0.5, 0.5);
 
-        var percentText = this.make.text({
-            x: width / 2,
-            y: height / 2 - 5,
-            text: '0%',
-            style: {
-                font: '18px monospace',
-                fill: '#ffffff'
-            }
-        });
-        percentText.setOrigin(0.5, 0.5);
+        // var percentText = this.make.text({
+        //     x: width / 2,
+        //     y: height / 2 - 5,
+        //     text: '0%',
+        //     style: {
+        //         font: '18px monospace',
+        //         fill: '#ffffff'
+        //     }
+        // });
+        // percentText.setOrigin(0.5, 0.5);
         
-        var assetText = this.make.text({
-            x: width / 2,
-            y: height / 2 + 50,
-            text: '',
-            style: {
-                font: '18px monospace',
-                fill: '#ffffff'
-            }
-        });
-        assetText.setOrigin(0.5, 0.5);
+        // var assetText = this.make.text({
+        //     x: width / 2,
+        //     y: height / 2 + 50,
+        //     text: '',
+        //     style: {
+        //         font: '18px monospace',
+        //         fill: '#ffffff'
+        //     }
+        // });
+        // assetText.setOrigin(0.5, 0.5);
         
-        this.load.on('progress', function (value) {
-            percentText.setText(parseInt(value * 100) + '%');
-            progressBar.clear();
-            progressBar.fillStyle(0xffffff, 1);
-            progressBar.fillRect((width - 300) / 2, 300, 300 * value, 30);
-        });
+        // this.load.on('progress', function (value) {
+        //     percentText.setText(parseInt(value * 100) + '%');
+        //     progressBar.clear();
+        //     progressBar.fillStyle(0xffffff, 1);
+        //     progressBar.fillRect((width - 300) / 2, 300, 300 * value, 30);
+        // });
         
-        this.load.on('fileprogress', function (file) {          //NOT WORKING FOR SOME REASON
-            assetText.setText('Loading asset: ' + file.key);
-        });
+        // this.load.on('fileprogress', function (file) {
+        //     assetText.setText('Loading asset: ' + file.key);
+        // });
 
-        this.load.on('complete', function () {
-            progressBar.destroy();
-            progressBox.destroy();
-            loadingText.destroy();
-            percentText.destroy();
-            assetText.destroy();
-        });
-    }
+        // this.load.on('complete', function () {
+        //     progressBar.destroy();
+        //     progressBox.destroy();
+        //     loadingText.destroy();
+        //     percentText.destroy();
+        //     assetText.destroy();
+        // });
 
-    update() {
         this.scene.start('StartGameScene');
     }
 }
@@ -95,24 +94,21 @@ class startGameScene extends Phaser.Scene {
         let introBck = this.add.sprite(0, 0, 'bckgr-intro');
         introBck.setOrigin(0, 0);
 
-        let style = { font: "bold 55px Arial", fill: "#fff" };
-        let text = this.add.text(410, 440, "PLAY", style);
-        text.inputEnabled = true;
+        let playButton = this.add.sprite(480, 440, 'play-btn', 0);
+        playButton.setOrigin(0.5, 0.5);
+        playButton.setInteractive();
 
-        //text.input.on("pointerup", goToGame, this);
+        playButton.on("pointerover", function() {
+            playButton.setFrame(1);
+        });
 
-        function goToGame() {
-            gameObj.scene.start('InGame');
-        }
-    }
+        playButton.on("pointerout", function() {
+            playButton.setFrame(0);
+        });
 
-    update() {
-        let gameObj = this;
-        this.input.on("pointerup", goToGame, this);
-        let isStarted = false;
-        function goToGame() {
+        playButton.on("pointerup", function() {
             gameObj.scene.start('InGameScene');
-        }
+        });
     }
 }
 
@@ -138,14 +134,14 @@ class inGameScene extends Phaser.Scene {
         let introBck = this.add.sprite(0, 0, 'bckgr-step-1');
         introBck.setOrigin(0, 0);
 
-        map = this.make.tilemap({key: 'map'});
+        let map = this.make.tilemap({key: 'map'});
         let groundTiles = map.addTilesetImage('tiles');
-
+        
         this.sys.game._mapLayer = map.createDynamicLayer('World', groundTiles, 0, 0);
         this.sys.game._mapLayer.setCollisionByExclusion([-1]);
 
         let coinTiles = map.addTilesetImage('coin');
-        coinLayer = map.createDynamicLayer('Coins', coinTiles, 0, 0);
+        let coinLayer = map.createDynamicLayer('Coins', coinTiles, 0, 0);
 
         this.physics.world.bounds.width = this.sys.game._mapLayer.width;
         this.physics.world.bounds.height = this.sys.game._mapLayer.height;
