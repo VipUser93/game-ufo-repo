@@ -126,6 +126,7 @@ class inGameScene extends Phaser.Scene {
         this.regulationLimit = this.sys.game._gameOptions.regulation.limit;
         this.regulationAcceleration = this.sys.game._gameOptions.regulation.acceleration;
         this.regulationPower = this.sys.game._gameOptions.regulation.power;
+        this.engineFuel = this.sys.game._gameOptions.engine.fuel;
         this.mapGravity = this.sys.game._gameOptions.map.gravity;
 
         let introBck = this.add.sprite(0, 0, 'bckgr-step-1');
@@ -148,9 +149,13 @@ class inGameScene extends Phaser.Scene {
         this.engineStatusText = this.add.text(34, 34, 'Engine OFF', engineTextStyle);
         this.engineStatusText.setScrollFactor(0);
 
-        this.engineThrottleText = this.add.text(34, 65, 'Throttle: ' + this.enginePower, engineTextStyle);
+        this.engineThrottleText = this.add.text(34, 34, 'Throttle: ' + this.enginePower, engineTextStyle);
         this.engineThrottleText.setScrollFactor(0);
         this.engineThrottleText.visible = false;
+
+        this.engineFuelText = this.add.text(34, 65, 'Fuel: ' + this.engineFuel, engineTextStyle);
+        this.engineFuelText.setScrollFactor(0);
+        this.engineFuelText.visible = false;
 
         this.physics.add.collider(this.sys.game._mapLayer, this.sys.game._player);
 
@@ -166,16 +171,21 @@ class inGameScene extends Phaser.Scene {
         
         if (!this.engineOn) {
             this.engineThrottleText.visible = false;
+            this.engineFuelText.visible = false;
+            this.engineStatusText.visible = true;
+            
             if (this.enginePower < 400) {
                 this.enginePower += 5;
             }
             if (userCursors.shift.isDown) {
                 this.engineOn = true;
-                this.engineStatusText.setText("Engine started!");
             }
             userPlayer.setVelocityY(this.enginePower);
         } else {
+            this.engineStatusText.visible = false;
             this.engineThrottleText.visible = true;
+            this.engineFuelText.visible = true;
+
             if (userCursors.left.isDown && userCursors.up.isDown) {              // left + up
                 if (this.regulationPower > -this.regulationLimit) {
                     this.regulationPower -= this.regulationAcceleration;
@@ -253,13 +263,17 @@ class inGameScene extends Phaser.Scene {
                 userPlayer.setVelocityX(this.regulationPower);
                 userPlayer.setVelocityY(this.enginePower);
             }
+
+            //console.log(this.enginePower);
+            //if (this.enginePower )
+
+            this.engineThrottleText.setText('Throttle: ' + this.enginePower);
+            this.engineFuelText.setText('Fuel: ' + this.engineFuel);
+
             if (userCursors.space.isDown) {
                 this.engineOn = false;
-                this.engineStatusText.setText("Engine OFF");
+                this.engineStatusText.visible = true;
             }
-        }
-        if (this.engineOn) {
-            this.engineThrottleText.setText('Throttle: ' + this.enginePower);
         }
     }
 }
@@ -308,7 +322,8 @@ GameApp.prototype.start = function() {
         engine: {
             limit: 500,
             acceleration: 3,
-            power: 400
+            power: 400,
+            fuel: 100
         },
         regulation: {
             limit: 500,
