@@ -13,7 +13,6 @@ class loadGameScene extends Phaser.Scene {
 
         this.load.tilemapTiledJSON('map', '../assets/media/game/map/map.json');
         this.load.spritesheet('tiles', '../assets/media/game/map/tiles.png', {frameWidth: 70, frameHeight: 70});
-        this.load.image('coin', '../assets/media/game/map/coinGold.png');
     }
     
     create() {
@@ -119,7 +118,7 @@ class inGameScene extends Phaser.Scene {
         super("InGameScene");
     }
 
-    init() {
+    create() {
         this.engineLimit = this.sys.game._gameOptions.engine.limit;
         this.engineAcceleration = this.sys.game._gameOptions.engine.acceleration;
         this.enginePower = this.sys.game._gameOptions.engine.power;
@@ -128,27 +127,30 @@ class inGameScene extends Phaser.Scene {
         this.regulationAcceleration = this.sys.game._gameOptions.regulation.acceleration;
         this.regulationPower = this.sys.game._gameOptions.regulation.power;
         this.mapGravity = this.sys.game._gameOptions.map.gravity;
-    }
 
-    create() {
         let introBck = this.add.sprite(0, 0, 'bckgr-step-1');
         introBck.setOrigin(0, 0);
 
         let map = this.make.tilemap({key: 'map'});
         let groundTiles = map.addTilesetImage('tiles');
-        
+
         this.sys.game._mapLayer = map.createDynamicLayer('World', groundTiles, 0, 0);
         this.sys.game._mapLayer.setCollisionByExclusion([-1]);
-
-        let coinTiles = map.addTilesetImage('coin');
-        let coinLayer = map.createDynamicLayer('Coins', coinTiles, 0, 0);
 
         this.physics.world.bounds.width = this.sys.game._mapLayer.width;
         this.physics.world.bounds.height = this.sys.game._mapLayer.height;
 
         this.sys.game._player = this.physics.add.sprite(100, this.sys.game._mapLayer.height - 230, 'player-graphics');
-        this.sys.game._player.setScale(0.1);
+        this.sys.game._player.setScale(1);
         this.sys.game._player.setCollideWorldBounds(true);
+
+        let engineTextStyle = {fontSize: '18px', fill: '#fff'};
+        this.engineStatusText = this.add.text(34, 34, 'Engine OFF', engineTextStyle);
+        this.engineStatusText.setScrollFactor(0);
+
+        this.engineThrottleText = this.add.text(34, 65, 'Throttle: ' + this.enginePower, engineTextStyle);
+        this.engineThrottleText.setScrollFactor(0);
+        this.engineThrottleText.visible = false;
 
         this.physics.add.collider(this.sys.game._mapLayer, this.sys.game._player);
 
@@ -161,16 +163,19 @@ class inGameScene extends Phaser.Scene {
     update() {
         let userPlayer = this.sys.game._player;
         let userCursors = this.sys.game._cursors;
+        
         if (!this.engineOn) {
+            this.engineThrottleText.visible = false;
             if (this.enginePower < 400) {
                 this.enginePower += 5;
             }
             if (userCursors.shift.isDown) {
                 this.engineOn = true;
-                console.log("Engine ON");
+                this.engineStatusText.setText("Engine started!");
             }
             userPlayer.setVelocityY(this.enginePower);
         } else {
+            this.engineThrottleText.visible = true;
             if (userCursors.left.isDown && userCursors.up.isDown) {              // left + up
                 if (this.regulationPower > -this.regulationLimit) {
                     this.regulationPower -= this.regulationAcceleration;
@@ -250,11 +255,11 @@ class inGameScene extends Phaser.Scene {
             }
             if (userCursors.space.isDown) {
                 this.engineOn = false;
-                console.log("Engine OFF");
+                this.engineStatusText.setText("Engine OFF");
             }
         }
         if (this.engineOn) {
-            console.log("Engine throtle -> " + this.enginePower);
+            this.engineThrottleText.setText('Throttle: ' + this.enginePower);
         }
     }
 }
@@ -265,7 +270,7 @@ var GameApp = function() {};
 
 GameApp.prototype.start = function() {
     // Game scenes
-    var scenes = [];
+    let scenes = [];
     scenes.push(loadGameScene);
     scenes.push(startGameScene);
     scenes.push(inGameScene);
